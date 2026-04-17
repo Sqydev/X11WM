@@ -37,14 +37,26 @@
 #define X11WM_COREDATA_H
 
 #include <X11/Xlib.h>
+#include <X11/extensions/Xinerama.h>
 
 #include <stdbool.h>
 
 typedef struct {
-	Display* Display;
-	Window Root;
+	struct {
+		Display* Display;
+		Window Root;
+	} Rooty;
 
-	bool debug;
+	struct {
+		int Count;
+		int Currrent;
+
+		XineramaScreenInfo* Thing;
+	} Monitors;
+
+	struct {
+		int leftTerms;
+	} Init;
 
 	XEvent events;
 
