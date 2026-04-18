@@ -33,12 +33,41 @@
 *    source or binary distribution.
 */
 
-#ifndef VTWM_UTILS_H
-#define VTWM_UTILS_H
+#include "../headers/coredata.h"
+#include "../headers/cleanup.h"
+#include "../headers/utils.h"
+#include "./config.h"
 
-#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-void Spawn(int argvCount, ...);
-int mkdir_p(const char *path, mode_t mode);
+void GenerateConfig(void) {
+	if(mkdir_p(DATA.Config.dir, 0777) != 0) {
+        perror("mkdir -p failed\n");
+		CleanUp();
+		exit(EXIT_FAILURE);
+	}
 
-#endif
+    FILE* conf = fopen(DATA.Config.path, "w");
+    if(!conf) {
+        perror("fopen failed\n");
+		CleanUp();
+		exit(EXIT_FAILURE);
+    }
+
+    const char* cfg = GetDefaultConfig();
+    if(!cfg) {
+        fclose(conf);
+		CleanUp();
+		exit(EXIT_FAILURE);
+    }
+
+    if(fputs(cfg, conf) == EOF) {
+        perror("fputs failed\n");
+    	fclose(conf);
+		CleanUp();
+		exit(EXIT_FAILURE);
+    }
+
+    fclose(conf);
+}

@@ -33,12 +33,12 @@
 *    source or binary distribution.
 */
 
-#ifndef VTWM_UTILS_H
-#define VTWM_UTILS_H
+#ifndef VTWM_CONFIG_H
+#define VTWM_CONFIG_H
 
-#include <sys/stat.h>
+char* GetDefaultConfig(void);
 
-void Spawn(int argvCount, ...);
-int mkdir_p(const char *path, mode_t mode);
+bool LoadConfig(void);
+void GenerateConfig(void);
 
 #endif

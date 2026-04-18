@@ -33,12 +33,13 @@
 *    source or binary distribution.
 */
 
-#ifndef VTWM_UTILS_H
-#define VTWM_UTILS_H
-
-#include <sys/stat.h>
-
-void Spawn(int argvCount, ...);
-int mkdir_p(const char *path, mode_t mode);
-
-#endif
+char* GetDefaultConfig(void) {
+	return
+	"# DEFAULT CONFIG. MAKE IT YOUR OWN BY DELETING THIS LINE\n"
+	"\n"
+	"set terminal = \"alacritty\"\n"
+	"\n"
+	"bind SUPER, ALT, M => {\n"
+	"	\"exit\"\n"
+	"}\n";
+}
