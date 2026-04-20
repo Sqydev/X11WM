@@ -33,35 +33,9 @@
 *    source or binary distribution.
 */
 
-#include "./coredata.h"
-#include "./init/init.h"
-#include "./eventLoop/eventLoop.h"
+#ifndef VTWM_EVENTLOOP_H
+#define VTWM_EVENTLOOP_H
 
-#include <X11/Xlib.h>
-#include <X11/extensions/Xinerama.h>
-#include <X11/keysym.h>
-#include <X11/keysymdef.h>
+void EventLoop(void);
 
-#include <stdlib.h>
-#include <unistd.h>
-
-CoreData DATA;
-
-int main() {
-	Init();
-
-	// NOTE: Listen for win+alt+m
-	XGrabKey(
-	    DATA.Rooty.Display,
-	    XKeysymToKeycode(DATA.Rooty.Display, XStringToKeysym("m")),
-	    Mod4Mask | Mod1Mask,
-	    DATA.Rooty.Root,
-	    True,
-    	GrabModeAsync,
-    	GrabModeAsync
-	);
-
-	EventLoop();
-
-	return EXIT_SUCCESS;
-}
+#endif
