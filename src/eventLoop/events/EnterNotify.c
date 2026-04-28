@@ -33,43 +33,53 @@
 *    source or binary distribution.
 */
 
-#include "./eventLoop.h"
-#include "./events/doRequests.h"
-
-#include "../coredata.h"
+#include "../../coredata.h"
 
 #include <X11/Xlib.h>
-
-#include <X11/Xlib.h>
-#include <X11/extensions/Xinerama.h>
 #include <X11/keysym.h>
-#include <X11/keysymdef.h>
 
-void EventLoop(void) {
-	while(1) {
-		XNextEvent(DATA.Rooty.Display, &DATA.events);
+void DoEnterNotify(void) {
+	Window window = DATA.events.xcrossing.subwindow;
+    if(window == None || window == DATA.Rooty.Root) { window = DATA.events.xcrossing.window; }
 
-		switch(DATA.events.type) {
-			case MapRequest: {
-				DoMapRequest();
-			    break;
-			}
+    if(DATA.events.xcrossing.mode != NotifyNormal) { break; }
 
-			case KeyPress: {
-				DoKeyPress();
-   				break;
-			}
+	XSetInputFocus( // NOTE: Set focus
+	    DATA.Rooty.Display,
+	    window, // NOTE: Which window
+	    RevertToPointerRoot, // NOTE: When window desintegrates then focus goes to window bellow
+	    CurrentTime // NOTE: Time cuz it's async
+	);
 
+	int x;
+	int y;
 
-			case ConfigureRequest: {
-				DoConfigureRequest();
-			    break;
-			}
+    Window root;
+	Window child;
 
-			case EnterNotify: {
-				DoEnterNotify();
-				break;
-			}
-		}
-	}
+    int win_x;
+	int win_y;
+
+    unsigned int mask;
+
+	XQueryPointer(
+        DATA.Rooty.Display,
+        DATA.Rooty.Root,
+        &root,
+        &child,
+        &x,
+        &y,
+        &win_x,
+        &win_y,
+        &mask
+    );
+
+	for(int i = 0; i < DATA.Monitors.Count; i++) {
+        XineramaScreenInfo m = DATA.Monitors.Thing[i];
+
+        if(x >= m.x_org && x < m.x_org + m.width && y >= m.y_org && y < m.y_org + m.height) {
+			DATA.Monitors.Currrent = i;
+            break;
+        }
+    }
 }

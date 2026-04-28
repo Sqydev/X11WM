@@ -33,43 +33,18 @@
 *    source or binary distribution.
 */
 
-#include "./eventLoop.h"
-#include "./events/doRequests.h"
-
-#include "../coredata.h"
+#include "../../coredata.h"
 
 #include <X11/Xlib.h>
-
-#include <X11/Xlib.h>
-#include <X11/extensions/Xinerama.h>
 #include <X11/keysym.h>
-#include <X11/keysymdef.h>
 
-void EventLoop(void) {
-	while(1) {
-		XNextEvent(DATA.Rooty.Display, &DATA.events);
+void DoConfigureRequest(void) {
+    XConfigureRequestEvent* AppWant = &DATA.events.xconfigurerequest;
+	
+    XWindowChanges changes;
+    changes.border_width = AppWant->border_width;
+    changes.sibling = AppWant->above;
+    changes.stack_mode = AppWant->detail;
 
-		switch(DATA.events.type) {
-			case MapRequest: {
-				DoMapRequest();
-			    break;
-			}
-
-			case KeyPress: {
-				DoKeyPress();
-   				break;
-			}
-
-
-			case ConfigureRequest: {
-				DoConfigureRequest();
-			    break;
-			}
-
-			case EnterNotify: {
-				DoEnterNotify();
-				break;
-			}
-		}
-	}
+    XConfigureWindow(DATA.Rooty.Display, AppWant->window, AppWant->value_mask, &changes);
 }

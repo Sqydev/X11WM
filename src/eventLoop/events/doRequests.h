@@ -33,43 +33,12 @@
 *    source or binary distribution.
 */
 
-#include "./eventLoop.h"
-#include "./events/doRequests.h"
+#ifndef VTWM_EVENTS_H
+#define VTWM_EVENTS_H
 
-#include "../coredata.h"
+void DoMapRequest(void);
+void DoKeyPress(void);
+void DoConfigureRequest(void);
+void DoEnterNotify(void);
 
-#include <X11/Xlib.h>
-
-#include <X11/Xlib.h>
-#include <X11/extensions/Xinerama.h>
-#include <X11/keysym.h>
-#include <X11/keysymdef.h>
-
-void EventLoop(void) {
-	while(1) {
-		XNextEvent(DATA.Rooty.Display, &DATA.events);
-
-		switch(DATA.events.type) {
-			case MapRequest: {
-				DoMapRequest();
-			    break;
-			}
-
-			case KeyPress: {
-				DoKeyPress();
-   				break;
-			}
-
-
-			case ConfigureRequest: {
-				DoConfigureRequest();
-			    break;
-			}
-
-			case EnterNotify: {
-				DoEnterNotify();
-				break;
-			}
-		}
-	}
-}
+#endif

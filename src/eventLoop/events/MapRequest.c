@@ -33,43 +33,53 @@
 *    source or binary distribution.
 */
 
-#include "./eventLoop.h"
-#include "./events/doRequests.h"
-
-#include "../coredata.h"
+#include "../../coredata.h"
 
 #include <X11/Xlib.h>
 
-#include <X11/Xlib.h>
-#include <X11/extensions/Xinerama.h>
-#include <X11/keysym.h>
-#include <X11/keysymdef.h>
+void DoMapRequest(void) {
+    Window window = DATA.events.xmaprequest.window;
 
-void EventLoop(void) {
-	while(1) {
-		XNextEvent(DATA.Rooty.Display, &DATA.events);
+    Atom netWmPid = XInternAtom(DATA.Rooty.Display, "_NET_WM_PID", False);
+    Atom cardinal = XInternAtom(DATA.Rooty.Display, "CARDINAL", False);
+    Atom actualType;
+    int actualFormat;
+    unsigned long nItems, bytesAfter;
+    unsigned char* prop = NULL;
+    pid_t windowPid = -1;
 
-		switch(DATA.events.type) {
-			case MapRequest: {
-				DoMapRequest();
-			    break;
-			}
+    if(XGetWindowProperty(DATA.Rooty.Display, window, netWmPid, 0, 1, False, cardinal, &actualType, &actualFormat, &nItems, &bytesAfter, &prop) == Success && prop) {
+        windowPid = (pid_t)(*(unsigned long*)prop);
+        XFree(prop);
+    }
 
-			case KeyPress: {
-				DoKeyPress();
-   				break;
-			}
+    int assignedMonitor = -1;
+    if(windowPid > 0) {
+        for(int i = DATA.Monitors.Count - 1; i >= 0; i--) {
+            if(DATA.Terminals.pids[i] == windowPid) {
+                assignedMonitor = i;
+                DATA.Terminals.pids[i] = -1;
+                break;
+            }
+        }
+    }
 
+    XineramaScreenInfo monitor = (assignedMonitor >= 0) ? DATA.Monitors.Thing[assignedMonitor] : DATA.Monitors.Thing[DATA.Monitors.Currrent];
 
-			case ConfigureRequest: {
-				DoConfigureRequest();
-			    break;
-			}
+    XWindowChanges changes;
 
-			case EnterNotify: {
-				DoEnterNotify();
-				break;
-			}
-		}
+    changes.x = monitor.x_org;
+    changes.y = monitor.y_org;
+    changes.width = monitor.width;
+    changes.height = monitor.height;
+
+    XConfigureWindow(DATA.Rooty.Display, window, CWX | CWY | CWWidth | CWHeight, &changes);
+
+    XMapWindow(DATA.Rooty.Display, window);
+
+	if(assignedMonitor <= 0) {
+    	XSetInputFocus(DATA.Rooty.Display, window, RevertToPointerRoot, CurrentTime);
 	}
+
+    XSelectInput(DATA.Rooty.Display, window, EnterWindowMask);
 }

@@ -33,43 +33,22 @@
 *    source or binary distribution.
 */
 
-#include "./eventLoop.h"
-#include "./events/doRequests.h"
-
-#include "../coredata.h"
+#include "../../coredata.h"
+#include "../../cleanup/cleanup.h"
 
 #include <X11/Xlib.h>
-
-#include <X11/Xlib.h>
-#include <X11/extensions/Xinerama.h>
 #include <X11/keysym.h>
-#include <X11/keysymdef.h>
 
-void EventLoop(void) {
-	while(1) {
-		XNextEvent(DATA.Rooty.Display, &DATA.events);
+#include <stdlib.h>
 
-		switch(DATA.events.type) {
-			case MapRequest: {
-				DoMapRequest();
-			    break;
-			}
+void DoKeyPress(void) {
+    KeySym sym = XLookupKeysym(&DATA.events.xkey, 0);
 
-			case KeyPress: {
-				DoKeyPress();
-   				break;
-			}
-
-
-			case ConfigureRequest: {
-				DoConfigureRequest();
-			    break;
-			}
-
-			case EnterNotify: {
-				DoEnterNotify();
-				break;
-			}
+	if(sym == XK_m) {
+       	if((DATA.events.xkey.state & Mod4Mask) && (DATA.events.xkey.state & Mod1Mask)) {
+       		CleanUp();
+			exit(EXIT_SUCCESS);
 		}
-	}
+   	}
+
 }
