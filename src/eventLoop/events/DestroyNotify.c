@@ -33,28 +33,16 @@
 *    source or binary distribution.
 */
 
-#include "./init.h"
+#include "../../coredata.h"
 
-#include "../config/config.h"
-#include "../logging/logging.h"
-#include "../termode/termode.h"
+#include <X11/X.h>
 
-#include <X11/Xlib.h>
-#include <X11/Xproto.h>
-
-#include <stdarg.h>
-#include <unistd.h>
-
-void Init(void) {
-	InitLogging();
-
-	InitConfig();
-
-	InitX11();
-
-	InitMonitors();
-
-	InitTermode();
-
-	InitTerminals();
+void DoDestroyNotify(void) {
+	Window window = DATA.events.xdestroywindow.window;
+	for(int i = 0; i < DATA.Monitors.Count; i++) {
+		if(DATA.Windows.Termode.windows[i] == window) {
+			DATA.Windows.Termode.windows[i] = None;
+			break;
+		}
+	}
 }
