@@ -33,36 +33,23 @@
 *    source or binary distribution.
 */
 
-#include "../../coredata.h"
-#include "../../cleanup/cleanup.h"
-#include "../../utils/utils.h"
+#include "./termode.h"
 
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
+#include "../coredata.h"
 
 #include <stdlib.h>
-#include <string.h>
 
-void DoKeyPress(void) {
-	for(size_t i = 0; i < DATA.Config.keybindsCount; i++) {
-		if((DATA.events.xkey.state & DATA.Config.keybinds[i].mods) == DATA.Config.keybinds[i].mods && XLookupKeysym(&DATA.events.xkey, 0) == DATA.Config.keybinds[i].key) {
-			if(DATA.Config.keybinds[i].actionsCount > 0 && DATA.Config.keybinds[i].actions && DATA.Config.keybinds[i].actions->argv) {
-				for(size_t j = 0; j < DATA.Config.keybinds[i].actionsCount; j++) {
-					if(strcmp(DATA.Config.keybinds[i].actions[j].argv[0], "exit") == 0) {
-						CleanUp();
-						exit(0);
-					}
-					else if(strcmp(DATA.Config.keybinds[i].actions[j].argv[0], "closefocused") == 0) {
-						CloseFocused();
-					}
-					else if(strcmp(DATA.Config.keybinds[i].actions[j].argv[0], "killfocused") == 0) {
-						KillFocused();
-					}
-					else {
-						SpawnArrFree(DATA.Config.keybinds[i].actions[j].argv);
-					}
-				}
-			}
-		}
-   	}
+void InitTermode(void) {
+	DATA.Windows.Termode.windows = malloc(DATA.Monitors.Count * sizeof(Window));
+	DATA.Windows.Termode.currentWorkspace = malloc(DATA.Monitors.Count * sizeof(int));
+
+	for(size_t i = 0; i < DATA.Monitors.Count; i++) {
+		*DATA.Windows.Termode.windows = -1;
+		*DATA.Windows.Termode.currentWorkspace = i;
+	}
+}
+
+void CleanTermode(void) {
+	if(DATA.Windows.Termode.windows) { free(DATA.Windows.Termode.windows); }
+	if(DATA.Windows.Termode.currentWorkspace) { free(DATA.Windows.Termode.currentWorkspace); }
 }
